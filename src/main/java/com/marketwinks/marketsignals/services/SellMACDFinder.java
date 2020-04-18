@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.marketwinks.marketsignals.model.US_15MinSell;
-import com.marketwinks.marketsignals.model.US_30MinSell;
-import com.marketwinks.marketsignals.model.US_5MinSell;
-import com.marketwinks.marketsignals.model.US_DailySell;
-import com.marketwinks.marketsignals.model.US_HourlySell;
-import com.marketwinks.marketsignals.model.US_MonthlySell;
-import com.marketwinks.marketsignals.model.US_WeeklySell;
+import com.marketwinks.marketsignals.model.us_15minsells;
+import com.marketwinks.marketsignals.model.us_30minsells;
+import com.marketwinks.marketsignals.model.us_5minsells;
+import com.marketwinks.marketsignals.model.us_dailysells;
+import com.marketwinks.marketsignals.model.us_hourlysells;
+import com.marketwinks.marketsignals.model.us_monthlysells;
+import com.marketwinks.marketsignals.model.us_weeklysells;
 import com.marketwinks.marketsignals.repository.US_15MinSellRepository;
 import com.marketwinks.marketsignals.repository.US_30MinSellRepository;
 import com.marketwinks.marketsignals.repository.US_5MinSellRepository;
@@ -57,8 +57,10 @@ public class SellMACDFinder {
 
 	@Autowired
 	private US_30MinSellRepository __30MinSellRepository;
+	
+	//uk 5 mins, 15 mins, 30 mins, hourly, daily, weekly, monthly remaining
 
-	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDMonthlySELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -155,7 +157,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_MonthlySell monthlysells = new US_MonthlySell();
+		us_monthlysells monthlysells = new us_monthlysells();
 		monthlysells.setMonth(new java.util.Date().getMonth());
 		monthlysells.setYear(new java.util.Date().getYear());
 		monthlysells.setCompany(company);
@@ -168,14 +170,14 @@ public class SellMACDFinder {
 		monthlysells.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_MonthlySell saveresult = monthlysellsRepository.insert(monthlysells);
+		us_monthlysells saveresult = monthlysellsRepository.insert(monthlysells);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/Weekly/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/Weekly/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDWeeklySELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -272,7 +274,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_WeeklySell weeklysells = new US_WeeklySell();
+		us_weeklysells weeklysells = new us_weeklysells();
 		weeklysells.setMonth(new java.util.Date().getMonth());
 		weeklysells.setYear(new java.util.Date().getYear());
 		weeklysells.setCompany(company);
@@ -285,14 +287,14 @@ public class SellMACDFinder {
 		weeklysells.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_WeeklySell saveresult = weeklysellsRepository.insert(weeklysells);
+		us_weeklysells saveresult = weeklysellsRepository.insert(weeklysells);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/Daily/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/Daily/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDDailySELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -389,7 +391,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_DailySell dailysells = new US_DailySell();
+		us_dailysells dailysells = new us_dailysells();
 		dailysells.setMonth(new java.util.Date().getMonth());
 		dailysells.setYear(new java.util.Date().getYear());
 		dailysells.setCompany(company);
@@ -402,14 +404,14 @@ public class SellMACDFinder {
 		dailysells.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_DailySell saveresult = dailysellsRepository.insert(dailysells);
+		us_dailysells saveresult = dailysellsRepository.insert(dailysells);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/Hourly/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/Hourly/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDHourlySELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -505,7 +507,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_HourlySell hourlySell = new US_HourlySell();
+		us_hourlysells hourlySell = new us_hourlysells();
 		hourlySell.setMonth(new java.util.Date().getMonth());
 		hourlySell.setYear(new java.util.Date().getYear());
 		hourlySell.setCompany(company);
@@ -518,14 +520,14 @@ public class SellMACDFinder {
 		hourlySell.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_HourlySell saveresult = hourlySellRepository.insert(hourlySell);
+		us_hourlysells saveresult = hourlySellRepository.insert(hourlySell);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/_30Min/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/_30Min/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD30MinSELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -622,7 +624,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_30MinSell __30MinSell = new US_30MinSell();
+		us_30minsells __30MinSell = new us_30minsells();
 		__30MinSell.setMonth(new java.util.Date().getMonth());
 		__30MinSell.setYear(new java.util.Date().getYear());
 		__30MinSell.setCompany(company);
@@ -635,14 +637,14 @@ public class SellMACDFinder {
 		__30MinSell.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_30MinSell saveresult = __30MinSellRepository.insert(__30MinSell);
+		us_30minsells saveresult = __30MinSellRepository.insert(__30MinSell);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/_15Min/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/_15Min/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD15MinSELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -739,7 +741,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_15MinSell __15MinSell = new US_15MinSell();
+		us_15minsells __15MinSell = new us_15minsells();
 		__15MinSell.setMonth(new java.util.Date().getMonth());
 		__15MinSell.setYear(new java.util.Date().getYear());
 		__15MinSell.setCompany(company);
@@ -752,14 +754,14 @@ public class SellMACDFinder {
 		__15MinSell.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_15MinSell saveresult = __15MinSellRepository.insert(__15MinSell);
+		us_15minsells saveresult = __15MinSellRepository.insert(__15MinSell);
 
 		execution_result = true;
 		return execution_result;
 
 	}
 
-	@RequestMapping(value = "/findMarketSignals/MACD/_5Min/SELL/{company}", method = RequestMethod.GET)
+	@RequestMapping(value = "/findMarketSignals/MACD/_5Min/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD5MinSELLSignals(@PathVariable String company) {
 
 		boolean execution_result = false;
@@ -856,7 +858,7 @@ public class SellMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
-		US_5MinSell __5MinSell = new US_5MinSell();
+		us_5minsells __5MinSell = new us_5minsells();
 		__5MinSell.setMonth(new java.util.Date().getMonth());
 		__5MinSell.setYear(new java.util.Date().getYear());
 		__5MinSell.setCompany(company);
@@ -869,7 +871,7 @@ public class SellMACDFinder {
 		__5MinSell.setLastEventPrice(0.0);
 
 		// TO DO price need to be populated
-		US_5MinSell saveresult = __5MinSellRepository.insert(__5MinSell);
+		us_5minsells saveresult = __5MinSellRepository.insert(__5MinSell);
 
 		execution_result = true;
 		return execution_result;

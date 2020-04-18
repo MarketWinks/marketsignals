@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 
 //Entity
 //@Document(collection = "DailySell")
-public class UK_LSE_DailySell {
+public class us_dailysells {
 
 	@Id
 	public ObjectId _id;

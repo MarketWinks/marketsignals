@@ -4,8 +4,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 //Entity
-//@Document(collection = "_15MinSell")
-public class UK_LSE_15MinSell {
+//@Document(collection = "DailySell")
+public class uk_lse_dailysells {
 
 	@Id
 	public ObjectId _id;
@@ -74,6 +74,22 @@ public class UK_LSE_15MinSell {
 		this.confidence_level = confidence_level;
 	}
 
+	public java.time.LocalDateTime getLastEvent() {
+		return lastEvent;
+	}
+
+	public void setLastEvent(java.time.LocalDateTime lastEvent) {
+		this.lastEvent = lastEvent;
+	}
+
+	public double getLastEventPrice() {
+		return lastEventPrice;
+	}
+
+	public void setLastEventPrice(double lastEventPrice) {
+		this.lastEventPrice = lastEventPrice;
+	}
+
 	public java.time.LocalDateTime getLastSellEvent() {
 		return lastSellEvent;
 	}
@@ -90,28 +106,12 @@ public class UK_LSE_15MinSell {
 		this.lastSellPrice = lastSellPrice;
 	}
 
-	public java.time.LocalDateTime getLastEvent() {
-		return lastEvent;
-	}
-
-	public void setLastEvent(java.time.LocalDateTime lastEvent) {
-		this.lastEvent = lastEvent;
-	}
-
 	public boolean isLastEventSell() {
 		return isLastEventSell;
 	}
 
 	public void setLastEventSell(boolean isLastEventSell) {
 		this.isLastEventSell = isLastEventSell;
-	}
-
-	public double getLastEventPrice() {
-		return lastEventPrice;
-	}
-
-	public void setLastEventPrice(double lastEventPrice) {
-		this.lastEventPrice = lastEventPrice;
 	}
 
 }

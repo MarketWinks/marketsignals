@@ -3,8 +3,8 @@ package com.marketwinks.marketsignals.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.marketwinks.marketsignals.model.UK_LSE_MonthlySell;
+import com.marketwinks.marketsignals.model.uk_lse_monthlysells;
 
 @Repository
-public interface UK_LSE_MonthlySellRepository extends MongoRepository<UK_LSE_MonthlySell, String> {
+public interface UK_LSE_MonthlySellRepository extends MongoRepository<uk_lse_monthlysells, String> {
 }

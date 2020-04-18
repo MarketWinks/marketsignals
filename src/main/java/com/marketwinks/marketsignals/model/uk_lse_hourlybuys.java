@@ -4,8 +4,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 //Entity
-//@Document(collection = "MonthlySell")
-public class US_MonthlySell {
+//@Document(collection = "HourlyBuy")
+public class uk_lse_hourlybuys {
 
 	@Id
 	public ObjectId _id;
@@ -18,11 +18,11 @@ public class US_MonthlySell {
 	private String indicator;
 	private double confidence_level;
 
-	private java.time.LocalDateTime lastSellEvent;
-	private double lastSellPrice;
+	private String lastBuyEvent;
+	private double lastBuyPrice;
 
-	private java.time.LocalDateTime lastEvent;
-	private boolean isLastEventSell;
+	private String lastEvent;
+	private boolean isLastEventBuy;
 	private double lastEventPrice;
 
 	// ObjectId needs to be converted to string
@@ -74,12 +74,36 @@ public class US_MonthlySell {
 		this.confidence_level = confidence_level;
 	}
 
-	public java.time.LocalDateTime getLastEvent() {
+	public String getLastBuyEvent() {
+		return lastBuyEvent;
+	}
+
+	public void setLastBuyEvent(String buy_opportunity) {
+		this.lastBuyEvent = buy_opportunity;
+	}
+
+	public double getLastBuyPrice() {
+		return lastBuyPrice;
+	}
+
+	public void setLastBuyPrice(double lastBuyPrice) {
+		this.lastBuyPrice = lastBuyPrice;
+	}
+
+	public String getLastEvent() {
 		return lastEvent;
 	}
 
-	public void setLastEvent(java.time.LocalDateTime lastEvent) {
-		this.lastEvent = lastEvent;
+	public void setLastEvent(String last_opportunity) {
+		this.lastEvent = last_opportunity;
+	}
+
+	public boolean isLastEventBuy() {
+		return isLastEventBuy;
+	}
+
+	public void setLastEventBuy(boolean isLastEventBuy) {
+		this.isLastEventBuy = isLastEventBuy;
 	}
 
 	public double getLastEventPrice() {
@@ -88,30 +112,6 @@ public class US_MonthlySell {
 
 	public void setLastEventPrice(double lastEventPrice) {
 		this.lastEventPrice = lastEventPrice;
-	}
-
-	public java.time.LocalDateTime getLastSellEvent() {
-		return lastSellEvent;
-	}
-
-	public void setLastSellEvent(java.time.LocalDateTime lastSellEvent) {
-		this.lastSellEvent = lastSellEvent;
-	}
-
-	public double getLastSellPrice() {
-		return lastSellPrice;
-	}
-
-	public void setLastSellPrice(double lastSellPrice) {
-		this.lastSellPrice = lastSellPrice;
-	}
-
-	public boolean isLastEventSell() {
-		return isLastEventSell;
-	}
-
-	public void setLastEventSell(boolean isLastEventSell) {
-		this.isLastEventSell = isLastEventSell;
 	}
 
 }

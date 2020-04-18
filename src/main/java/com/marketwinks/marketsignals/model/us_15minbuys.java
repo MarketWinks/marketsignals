@@ -4,8 +4,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 //Entity
-//@Document(collection = "_5MinBuy")
-public class UK_LSE_5MinBuy {
+//@Document(collection = "_15MinBuy")
+public class us_15minbuys {
 
 	@Id
 	public ObjectId _id;
