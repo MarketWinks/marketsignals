@@ -18,10 +18,10 @@ public class uk_lse_dailybuys {
 	private String indicator;
 	private double confidence_level;
 
-	private java.time.LocalDateTime lastBuyEvent;
+	private String lastBuyEvent;
 	private double lastBuyPrice;
 
-	private java.time.LocalDateTime lastEvent;
+	private String lastEvent;
 	private boolean isLastEventBuy;
 	private double lastEventPrice;
 
@@ -74,12 +74,12 @@ public class uk_lse_dailybuys {
 		this.confidence_level = confidence_level;
 	}
 
-	public java.time.LocalDateTime getLastBuyEvent() {
+	public String getLastBuyEvent() {
 		return lastBuyEvent;
 	}
 
-	public void setLastBuyEvent(java.time.LocalDateTime lastBuyEvent) {
-		this.lastBuyEvent = lastBuyEvent;
+	public void setLastBuyEvent(String buy_opportunity) {
+		this.lastBuyEvent = buy_opportunity;
 	}
 
 	public double getLastBuyPrice() {
@@ -90,12 +90,12 @@ public class uk_lse_dailybuys {
 		this.lastBuyPrice = lastBuyPrice;
 	}
 
-	public java.time.LocalDateTime getLastEvent() {
+	public String getLastEvent() {
 		return lastEvent;
 	}
 
-	public void setLastEvent(java.time.LocalDateTime lastEvent) {
-		this.lastEvent = lastEvent;
+	public void setLastEvent(String last_opportunity) {
+		this.lastEvent = last_opportunity;
 	}
 
 	public boolean isLastEventBuy() {

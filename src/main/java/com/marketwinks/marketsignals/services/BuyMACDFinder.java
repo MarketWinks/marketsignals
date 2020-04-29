@@ -35,7 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.marketwinks.marketsignals.model.uk_lse_15minbuys;
 import com.marketwinks.marketsignals.model.uk_lse_30minbuys;
 import com.marketwinks.marketsignals.model.uk_lse_5minbuys;
+import com.marketwinks.marketsignals.model.uk_lse_dailybuys;
 import com.marketwinks.marketsignals.model.uk_lse_hourlybuys;
+import com.marketwinks.marketsignals.model.uk_lse_monthlybuys;
+import com.marketwinks.marketsignals.model.uk_lse_weeklybuys;
 import com.marketwinks.marketsignals.model.us_15minbuys;
 import com.marketwinks.marketsignals.model.us_30minbuys;
 import com.marketwinks.marketsignals.model.us_5minbuys;
@@ -46,7 +49,10 @@ import com.marketwinks.marketsignals.model.us_weeklybuys;
 import com.marketwinks.marketsignals.repository.UK_LSE_15MinBuyRepository;
 import com.marketwinks.marketsignals.repository.UK_LSE_30MinBuyRepository;
 import com.marketwinks.marketsignals.repository.UK_LSE_5MinBuyRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_DailyBuyRepository;
 import com.marketwinks.marketsignals.repository.UK_LSE_HourlyBuyRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_MonthlyBuyRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_WeeklyBuyRepository;
 import com.marketwinks.marketsignals.repository.US_15MinBuyRepository;
 import com.marketwinks.marketsignals.repository.US_30MinBuyRepository;
 import com.marketwinks.marketsignals.repository.US_5MinBuyRepository;
@@ -79,7 +85,7 @@ public class BuyMACDFinder {
 
 	@Autowired
 	private US_30MinBuyRepository __30MinBuyRepository;
-	
+
 	@Autowired
 	private UK_LSE_5MinBuyRepository UK_LSE__5MinBuyRepository;
 
@@ -91,11 +97,15 @@ public class BuyMACDFinder {
 
 	@Autowired
 	private UK_LSE_HourlyBuyRepository UK_LSE__HourlyBuyRepository;
-	
-	//UK Daily remaining
-	//UK Weekly remaining
-	//UK Monthly remaining
 
+	@Autowired
+	private UK_LSE_DailyBuyRepository UK_LSE__DailyBuyRepository;
+
+	@Autowired
+	private UK_LSE_WeeklyBuyRepository UK_LSE__WeeklyBuyRepository;
+
+	@Autowired
+	private UK_LSE_MonthlyBuyRepository UK_LSE__MonthlyBuyRepository;
 
 	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/BUY/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDMonthlyBUYSignals(@PathVariable String company) {
@@ -914,11 +924,9 @@ public class BuyMACDFinder {
 		return execution_result;
 
 	}
-	
 
 	@RequestMapping(value = "/findMarketSignals/MACD/_15Min/BUY/UKEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD15MinsBUYSignals_UK(@PathVariable String company) {
-
 
 		boolean execution_result = false;
 		int timeout = 3000;
@@ -928,9 +936,9 @@ public class BuyMACDFinder {
 
 		double signal_average = 0.0;
 
-//		 java.time.LocalDateTime buy_opportunity = null;
-//		 java.time.LocalDateTime sell_opportunity = null;
-//		 java.time.LocalDateTime last_opportunity = null;
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
 
 		String buy_opportunity = null;
 		String sell_opportunity = null;
@@ -1142,22 +1150,17 @@ public class BuyMACDFinder {
 		UK_LSE_15MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_15MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_15MinBuy.setLastEventPrice(0.0);
-		 
 
-			// TO DO price need to be populated
+		// TO DO price need to be populated
 		uk_lse_15minbuys saveresult = UK_LSE__15MinBuyRepository.insert(UK_LSE_15MinBuy);
 
-		
 		execution_result = true;
 		return execution_result;
 
-
 	}
-
 
 	@RequestMapping(value = "/findMarketSignals/MACD/_30Min/BUY/UKEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD30MinsBUYSignals_UK(@PathVariable String company) {
-
 
 		boolean execution_result = false;
 		int timeout = 3000;
@@ -1167,9 +1170,9 @@ public class BuyMACDFinder {
 
 		double signal_average = 0.0;
 
-//		 java.time.LocalDateTime buy_opportunity = null;
-//		 java.time.LocalDateTime sell_opportunity = null;
-//		 java.time.LocalDateTime last_opportunity = null;
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
 
 		String buy_opportunity = null;
 		String sell_opportunity = null;
@@ -1381,22 +1384,17 @@ public class BuyMACDFinder {
 		UK_LSE_30MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_30MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_30MinBuy.setLastEventPrice(0.0);
-		 
 
-			// TO DO price need to be populated
+		// TO DO price need to be populated
 		uk_lse_30minbuys saveresult = UK_LSE__30MinBuyRepository.insert(UK_LSE_30MinBuy);
 
-		
 		execution_result = true;
 		return execution_result;
 
-
 	}
 
-	
 	@RequestMapping(value = "/findMarketSignals/MACD/Hourly/BUY/UKEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDHourlyBUYSignals_UK(@PathVariable String company) {
-
 
 		boolean execution_result = false;
 		int timeout = 3000;
@@ -1406,9 +1404,9 @@ public class BuyMACDFinder {
 
 		double signal_average = 0.0;
 
-//		 java.time.LocalDateTime buy_opportunity = null;
-//		 java.time.LocalDateTime sell_opportunity = null;
-//		 java.time.LocalDateTime last_opportunity = null;
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
 
 		String buy_opportunity = null;
 		String sell_opportunity = null;
@@ -1620,23 +1618,17 @@ public class BuyMACDFinder {
 		UK_LSE_HourlyBuy.setLastEvent(last_opportunity);
 		UK_LSE_HourlyBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_HourlyBuy.setLastEventPrice(0.0);
-		 
 
-			// TO DO price need to be populated
+		// TO DO price need to be populated
 		uk_lse_hourlybuys saveresult = UK_LSE__HourlyBuyRepository.insert(UK_LSE_HourlyBuy);
 
-		
 		execution_result = true;
 		return execution_result;
 
-
 	}
-	
-	
-	
+
 	@RequestMapping(value = "/findMarketSignals/MACD/_5Min/BUY/UKEq/{company}", method = RequestMethod.GET)
 	public boolean findMACD5MinsBUYSignals_UK(@PathVariable String company) {
-
 
 		boolean execution_result = false;
 		int timeout = 3000;
@@ -1646,9 +1638,9 @@ public class BuyMACDFinder {
 
 		double signal_average = 0.0;
 
-//		 java.time.LocalDateTime buy_opportunity = null;
-//		 java.time.LocalDateTime sell_opportunity = null;
-//		 java.time.LocalDateTime last_opportunity = null;
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
 
 		String buy_opportunity = null;
 		String sell_opportunity = null;
@@ -1860,20 +1852,717 @@ public class BuyMACDFinder {
 		UK_LSE_5MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_5MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_5MinBuy.setLastEventPrice(0.0);
-		 
 
-			// TO DO price need to be populated
+		// TO DO price need to be populated
 		uk_lse_5minbuys saveresult = UK_LSE__5MinBuyRepository.insert(UK_LSE_5MinBuy);
 
-		
 		execution_result = true;
 		return execution_result;
 
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Weekly/BUY/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDWeeklyBUYSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int buy_counter = 0;
+		int no_of_buys = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventBuy = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_weekly/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - buy_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					buy_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventBuy = true;
+					last_opportunity = buy_opportunity;
+					no_of_buys++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+
+					sell_opportunity = buy_opportunity;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventBuy = false;
+					last_opportunity = sell_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("BUY") && event.get(i + 1).equals("BUY")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_buys != 0) {
+			confidence_level = (no_of_buys - signal_lapse) * 100 / no_of_buys;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_weeklybuys UK_LSE_WeeklyBuy = new uk_lse_weeklybuys();
+		UK_LSE_WeeklyBuy.setMonth(new java.util.Date().getMonth());
+		UK_LSE_WeeklyBuy.setYear(new java.util.Date().getYear());
+		UK_LSE_WeeklyBuy.setCompany(company);
+		UK_LSE_WeeklyBuy.setIndicator("MACD");
+		UK_LSE_WeeklyBuy.setConfidence_level(confidence_level);
+		UK_LSE_WeeklyBuy.setLastBuyEvent(buy_opportunity);
+		UK_LSE_WeeklyBuy.setLastBuyPrice(0.0);
+		UK_LSE_WeeklyBuy.setLastEvent(last_opportunity);
+		UK_LSE_WeeklyBuy.setLastEventBuy(isLastEventBuy);
+		UK_LSE_WeeklyBuy.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_weeklybuys saveresult = UK_LSE__WeeklyBuyRepository.insert(UK_LSE_WeeklyBuy);
+
+		execution_result = true;
+		return execution_result;
 
 	}
-	
-	
-	
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/BUY/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDMonthlyBUYSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int buy_counter = 0;
+		int no_of_buys = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventBuy = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_monthly/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - buy_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					buy_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventBuy = true;
+					last_opportunity = buy_opportunity;
+					no_of_buys++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+
+					sell_opportunity = buy_opportunity;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventBuy = false;
+					last_opportunity = sell_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("BUY") && event.get(i + 1).equals("BUY")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_buys != 0) {
+			confidence_level = (no_of_buys - signal_lapse) * 100 / no_of_buys;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_monthlybuys UK_LSE_MonthlyBuy = new uk_lse_monthlybuys();
+		UK_LSE_MonthlyBuy.setMonth(new java.util.Date().getMonth());
+		UK_LSE_MonthlyBuy.setYear(new java.util.Date().getYear());
+		UK_LSE_MonthlyBuy.setCompany(company);
+		UK_LSE_MonthlyBuy.setIndicator("MACD");
+		UK_LSE_MonthlyBuy.setConfidence_level(confidence_level);
+		UK_LSE_MonthlyBuy.setLastBuyEvent(buy_opportunity);
+		UK_LSE_MonthlyBuy.setLastBuyPrice(0.0);
+		UK_LSE_MonthlyBuy.setLastEvent(last_opportunity);
+		UK_LSE_MonthlyBuy.setLastEventBuy(isLastEventBuy);
+		UK_LSE_MonthlyBuy.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_monthlybuys saveresult = UK_LSE__MonthlyBuyRepository.insert(UK_LSE_MonthlyBuy);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Daily/BUY/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDDailyBUYSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int buy_counter = 0;
+		int no_of_buys = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventBuy = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_daily/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - buy_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					buy_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventBuy = true;
+					last_opportunity = buy_opportunity;
+					no_of_buys++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					buy_opportunity = key;
+
+					sell_opportunity = buy_opportunity;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventBuy = false;
+					last_opportunity = sell_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("BUY") && event.get(i + 1).equals("BUY")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_buys != 0) {
+			confidence_level = (no_of_buys - signal_lapse) * 100 / no_of_buys;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_dailybuys UK_LSE_DailyBuy = new uk_lse_dailybuys();
+		UK_LSE_DailyBuy.setMonth(new java.util.Date().getMonth());
+		UK_LSE_DailyBuy.setYear(new java.util.Date().getYear());
+		UK_LSE_DailyBuy.setCompany(company);
+		UK_LSE_DailyBuy.setIndicator("MACD");
+		UK_LSE_DailyBuy.setConfidence_level(confidence_level);
+		UK_LSE_DailyBuy.setLastBuyEvent(buy_opportunity);
+		UK_LSE_DailyBuy.setLastBuyPrice(0.0);
+		UK_LSE_DailyBuy.setLastEvent(last_opportunity);
+		UK_LSE_DailyBuy.setLastEventBuy(isLastEventBuy);
+		UK_LSE_DailyBuy.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_dailybuys saveresult = UK_LSE__DailyBuyRepository.insert(UK_LSE_DailyBuy);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
 	@RequestMapping(value = "/runtestmethod/{cpny}", method = RequestMethod.GET)
 	public boolean testmethod(@PathVariable String cpny) {
 
