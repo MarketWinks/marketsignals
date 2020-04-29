@@ -952,7 +952,7 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
-		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_5mins/macd/read/" + company;
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_15mins/macd/read/" + company;
 
 		HttpGet request = null;
 		String url = feedURLFull;
@@ -1186,7 +1186,7 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
-		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_5mins/macd/read/" + company;
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_30mins/macd/read/" + company;
 
 		HttpGet request = null;
 		String url = feedURLFull;
@@ -1420,7 +1420,7 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
-		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_5mins/macd/read/" + company;
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_hourly/macd/read/" + company;
 
 		HttpGet request = null;
 		String url = feedURLFull;
