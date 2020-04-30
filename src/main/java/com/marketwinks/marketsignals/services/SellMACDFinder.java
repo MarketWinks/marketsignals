@@ -1,9 +1,22 @@
 package com.marketwinks.marketsignals.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.patriques.AlphaVantageConnector;
 import org.patriques.TechnicalIndicators;
 import org.patriques.input.technicalindicators.Interval;
@@ -18,6 +31,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.marketwinks.marketsignals.model.uk_lse_15minsells;
+import com.marketwinks.marketsignals.model.uk_lse_30minsells;
+import com.marketwinks.marketsignals.model.uk_lse_5minsells;
+import com.marketwinks.marketsignals.model.uk_lse_dailysells;
+import com.marketwinks.marketsignals.model.uk_lse_hourlysells;
+import com.marketwinks.marketsignals.model.uk_lse_monthlysells;
+import com.marketwinks.marketsignals.model.uk_lse_weeklysells;
 import com.marketwinks.marketsignals.model.us_15minsells;
 import com.marketwinks.marketsignals.model.us_30minsells;
 import com.marketwinks.marketsignals.model.us_5minsells;
@@ -25,6 +45,13 @@ import com.marketwinks.marketsignals.model.us_dailysells;
 import com.marketwinks.marketsignals.model.us_hourlysells;
 import com.marketwinks.marketsignals.model.us_monthlysells;
 import com.marketwinks.marketsignals.model.us_weeklysells;
+import com.marketwinks.marketsignals.repository.UK_LSE_15MinSellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_30MinSellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_5MinSellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_DailySellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_HourlySellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_MonthlySellRepository;
+import com.marketwinks.marketsignals.repository.UK_LSE_WeeklySellRepository;
 import com.marketwinks.marketsignals.repository.US_15MinSellRepository;
 import com.marketwinks.marketsignals.repository.US_30MinSellRepository;
 import com.marketwinks.marketsignals.repository.US_5MinSellRepository;
@@ -57,8 +84,29 @@ public class SellMACDFinder {
 
 	@Autowired
 	private US_30MinSellRepository __30MinSellRepository;
-	
-	//uk 5 mins, 15 mins, 30 mins, hourly, daily, weekly, monthly remaining
+
+	@Autowired
+	private UK_LSE_5MinSellRepository UK_LSE__5MinSellRepository;
+
+	@Autowired
+	private UK_LSE_15MinSellRepository UK_LSE__15MinSellRepository;
+
+	@Autowired
+	private UK_LSE_30MinSellRepository UK_LSE__30MinSellRepository;
+
+	@Autowired
+	private UK_LSE_HourlySellRepository UK_LSE__HourlySellRepository;
+
+	@Autowired
+	private UK_LSE_DailySellRepository UK_LSE__DailySellRepository;
+
+	@Autowired
+	private UK_LSE_WeeklySellRepository UK_LSE__WeeklySellRepository;
+
+	@Autowired
+	private UK_LSE_MonthlySellRepository UK_LSE__MonthlySellRepository;
+
+	// uk 5 mins, 15 mins, 30 mins, hourly, daily, weekly, monthly remaining
 
 	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/SELL/USEq/{company}", method = RequestMethod.GET)
 	public boolean findMACDMonthlySELLSignals(@PathVariable String company) {
@@ -872,6 +920,1644 @@ public class SellMACDFinder {
 
 		// TO DO price need to be populated
 		us_5minsells saveresult = __5MinSellRepository.insert(__5MinSell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/_5Min/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACD5MinsSELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_5mins/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_5minsells UK_LSE_5MinSell = new uk_lse_5minsells();
+		UK_LSE_5MinSell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_5MinSell.setYear(new java.util.Date().getYear());
+		UK_LSE_5MinSell.setCompany(company);
+		UK_LSE_5MinSell.setIndicator("MACD");
+		UK_LSE_5MinSell.setConfidence_level(confidence_level);
+		UK_LSE_5MinSell.setLastSellEvent(sell_opportunity);
+		UK_LSE_5MinSell.setLastSellPrice(0.0);
+		UK_LSE_5MinSell.setLastEvent(last_opportunity);
+		UK_LSE_5MinSell.setLastEventSell(isLastEventSell);
+		UK_LSE_5MinSell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_5minsells saveresult = UK_LSE__5MinSellRepository.insert(UK_LSE_5MinSell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/_15Min/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACD15MinsSELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_15mins/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_15minsells UK_LSE_15MinSell = new uk_lse_15minsells();
+		UK_LSE_15MinSell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_15MinSell.setYear(new java.util.Date().getYear());
+		UK_LSE_15MinSell.setCompany(company);
+		UK_LSE_15MinSell.setIndicator("MACD");
+		UK_LSE_15MinSell.setConfidence_level(confidence_level);
+		UK_LSE_15MinSell.setLastSellEvent(sell_opportunity);
+		UK_LSE_15MinSell.setLastSellPrice(0.0);
+		UK_LSE_15MinSell.setLastEvent(last_opportunity);
+		UK_LSE_15MinSell.setLastEventSell(isLastEventSell);
+		UK_LSE_15MinSell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_15minsells saveresult = UK_LSE__15MinSellRepository.insert(UK_LSE_15MinSell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/_30Min/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACD30MinsSELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_30mins/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_30minsells UK_LSE_30MinSell = new uk_lse_30minsells();
+		UK_LSE_30MinSell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_30MinSell.setYear(new java.util.Date().getYear());
+		UK_LSE_30MinSell.setCompany(company);
+		UK_LSE_30MinSell.setIndicator("MACD");
+		UK_LSE_30MinSell.setConfidence_level(confidence_level);
+		UK_LSE_30MinSell.setLastSellEvent(sell_opportunity);
+		UK_LSE_30MinSell.setLastSellPrice(0.0);
+		UK_LSE_30MinSell.setLastEvent(last_opportunity);
+		UK_LSE_30MinSell.setLastEventSell(isLastEventSell);
+		UK_LSE_30MinSell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_30minsells saveresult = UK_LSE__30MinSellRepository.insert(UK_LSE_30MinSell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Hourly/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDHourlySELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_hourly/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_hourlysells UK_LSE_HourlySell = new uk_lse_hourlysells();
+		UK_LSE_HourlySell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_HourlySell.setYear(new java.util.Date().getYear());
+		UK_LSE_HourlySell.setCompany(company);
+		UK_LSE_HourlySell.setIndicator("MACD");
+		UK_LSE_HourlySell.setConfidence_level(confidence_level);
+		UK_LSE_HourlySell.setLastSellEvent(sell_opportunity);
+		UK_LSE_HourlySell.setLastSellPrice(0.0);
+		UK_LSE_HourlySell.setLastEvent(last_opportunity);
+		UK_LSE_HourlySell.setLastEventSell(isLastEventSell);
+		UK_LSE_HourlySell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_hourlysells saveresult = UK_LSE__HourlySellRepository.insert(UK_LSE_HourlySell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Daily/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDDailySELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_daily/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_dailysells UK_LSE_DailySell = new uk_lse_dailysells();
+		UK_LSE_DailySell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_DailySell.setYear(new java.util.Date().getYear());
+		UK_LSE_DailySell.setCompany(company);
+		UK_LSE_DailySell.setIndicator("MACD");
+		UK_LSE_DailySell.setConfidence_level(confidence_level);
+		UK_LSE_DailySell.setLastSellEvent(sell_opportunity);
+		UK_LSE_DailySell.setLastSellPrice(0.0);
+		UK_LSE_DailySell.setLastEvent(last_opportunity);
+		UK_LSE_DailySell.setLastEventSell(isLastEventSell);
+		UK_LSE_DailySell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_dailysells saveresult = UK_LSE__DailySellRepository.insert(UK_LSE_DailySell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Weekly/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDWeeklySELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_weekly/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_weeklysells UK_LSE_WeeklySell = new uk_lse_weeklysells();
+		UK_LSE_WeeklySell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_WeeklySell.setYear(new java.util.Date().getYear());
+		UK_LSE_WeeklySell.setCompany(company);
+		UK_LSE_WeeklySell.setIndicator("MACD");
+		UK_LSE_WeeklySell.setConfidence_level(confidence_level);
+		UK_LSE_WeeklySell.setLastSellEvent(sell_opportunity);
+		UK_LSE_WeeklySell.setLastSellPrice(0.0);
+		UK_LSE_WeeklySell.setLastEvent(last_opportunity);
+		UK_LSE_WeeklySell.setLastEventSell(isLastEventSell);
+		UK_LSE_WeeklySell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_weeklysells saveresult = UK_LSE__WeeklySellRepository.insert(UK_LSE_WeeklySell);
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/Monthly/SELL/UKEq/{company}", method = RequestMethod.GET)
+	public boolean findMACDMonthlySELLSignals_UK(@PathVariable String company) {
+
+		boolean execution_result = false;
+		int timeout = 3000;
+		int size = 0;
+
+		System.out.println(company);
+
+		double signal_average = 0.0;
+
+		// java.time.LocalDateTime buy_opportunity = null;
+		// java.time.LocalDateTime sell_opportunity = null;
+		// java.time.LocalDateTime last_opportunity = null;
+
+		String buy_opportunity = null;
+		String sell_opportunity = null;
+		String last_opportunity = null;
+
+		// TODO experimenatal: to reduce repeated buy signals
+		int sell_counter = 0;
+		int no_of_sells = 0;
+		int signal_lapse = 0;
+		double confidence_level = 0.0;
+		boolean isLastEventSell = false;
+		List<String> event = new ArrayList<>();
+
+		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_monthly/macd/read/" + company;
+
+		HttpGet request = null;
+		String url = feedURLFull;
+		String content = null;
+		JSONArray criteriaObject = null;
+
+		try {
+
+			HttpClient client = HttpClientBuilder.create().build();
+			request = new HttpGet(url);
+
+			request.addHeader("User-Agent", "Apache HTTPClient");
+			HttpResponse response = null;
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			HttpEntity entity = response.getEntity();
+			try {
+				content = EntityUtils.toString(entity);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// System.out.println(content);
+
+			JSONParser parser = new JSONParser();
+			org.json.simple.JSONObject jsonresult = null;
+			try {
+				jsonresult = (org.json.simple.JSONObject) parser.parse(content);
+			} catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				criteriaObject = (JSONArray) jsonresult.get("macdjson");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.println(criteriaObject.get(0));
+			// System.out.println(criteriaObject.get(1));
+
+		} finally {
+
+			if (request != null) {
+
+				request.releaseConnection();
+			}
+		}
+
+		try {
+			// System.out.println("MONTHLY SIGNALS:");
+
+			List macdData = criteriaObject;
+			size = macdData.size();
+			for (int i = size - 2, counter = 1; i >= 0; i--, counter++) {
+				// for (int i = 0, counter = 1; i <= size - 1; i++, counter++) {
+
+				// System.out.println(macdData.get(i));
+
+				String loopobj = macdData.get(i).toString();
+				String loopnextobj = macdData.get(i + 1).toString();
+
+				JSONParser loopparser = new JSONParser();
+				JSONParser loopnextparser = new JSONParser();
+
+				org.json.simple.JSONObject jsonloopresult = (org.json.simple.JSONObject) loopparser
+						.parse(macdData.get(i).toString());
+
+				org.json.simple.JSONObject jsonloopnextresult = (org.json.simple.JSONObject) loopnextparser
+						.parse(macdData.get(i + 1).toString());
+
+				String key = null;
+
+				String keynext = null;
+
+				for (Iterator iterator = jsonloopresult.keySet().iterator(); iterator.hasNext();) {
+					key = (String) iterator.next();
+				}
+
+				for (Iterator iteratornext = jsonloopnextresult.keySet().iterator(); iteratornext.hasNext();) {
+					keynext = (String) iteratornext.next();
+				}
+
+				JSONObject criterialoopObject = (JSONObject) jsonloopresult.get(key);
+				// System.out.println(key);
+				// System.out.println(criterialoopObject.get("MACD_Signal"));
+				// System.out.println(criterialoopObject.get("MACD_Hist"));
+				// System.out.println(criterialoopObject.get("Price"));
+				// System.out.println(criterialoopObject.get("MACD"));
+
+				JSONObject criterialoopnextObject = (JSONObject) jsonloopnextresult.get(keynext);
+				// System.out.println(keynext);
+				// System.out.println(criterialoopnextObject.get("MACD_Signal"));
+				// System.out.println(criterialoopnextObject.get("MACD_Hist"));
+				// System.out.println(criterialoopnextObject.get("Price"));
+				// System.out.println(criterialoopnextObject.get("MACD"));
+
+				/*
+				 * already commented System.out.println("date:           " +
+				 * macdData.get(i).getDateTime()); System.out.println("MACD Histogram: " +
+				 * macdData.get(i).getHist()); System.out.println("MACD Signal:    " +
+				 * macdData.get(i).getSignal()); System.out.println("MACD:           " +
+				 * macdData.get(i).getMacd());
+				 * 
+				 */
+
+				signal_average = (signal_average * (counter - 1)
+						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
+
+				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+								* 1.5) {
+
+					sell_counter = counter;
+
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
+					event.add("SELL");
+					isLastEventSell = true;
+					last_opportunity = sell_opportunity;
+					no_of_sells++;
+				}
+
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+					//
+					// String str = key;
+					//
+					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+					// HH:mm");
+					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+					sell_opportunity = key;
+
+					buy_opportunity = sell_opportunity;
+					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
+					event.add("BUY");
+					isLastEventSell = false;
+					last_opportunity = buy_opportunity;
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("something went wrong");
+			return execution_result;
+		}
+
+		for (int i = 0; i < event.size() - 1; i++) {
+			if (event.get(i).equals("SELL") && event.get(i + 1).equals("SELL")) {
+				signal_lapse++;
+			}
+		}
+
+		if (no_of_sells != 0) {
+			confidence_level = (no_of_sells - signal_lapse) * 100 / no_of_sells;
+		}
+
+		System.out.println("Confidence level:" + confidence_level);
+
+		uk_lse_monthlysells UK_LSE_MonthlySell = new uk_lse_monthlysells();
+		UK_LSE_MonthlySell.setMonth(new java.util.Date().getMonth());
+		UK_LSE_MonthlySell.setYear(new java.util.Date().getYear());
+		UK_LSE_MonthlySell.setCompany(company);
+		UK_LSE_MonthlySell.setIndicator("MACD");
+		UK_LSE_MonthlySell.setConfidence_level(confidence_level);
+		UK_LSE_MonthlySell.setLastSellEvent(sell_opportunity);
+		UK_LSE_MonthlySell.setLastSellPrice(0.0);
+		UK_LSE_MonthlySell.setLastEvent(last_opportunity);
+		UK_LSE_MonthlySell.setLastEventSell(isLastEventSell);
+		UK_LSE_MonthlySell.setLastEventPrice(0.0);
+
+		// TO DO price need to be populated
+		uk_lse_monthlysells saveresult = UK_LSE__MonthlySellRepository.insert(UK_LSE_MonthlySell);
 
 		execution_result = true;
 		return execution_result;
