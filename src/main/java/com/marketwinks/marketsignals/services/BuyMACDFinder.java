@@ -1866,7 +1866,7 @@ public class BuyMACDFinder {
 		UK_LSE_5MinBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_5MinBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_5MinBuy.setCompany(company);
-		UK_LSE_5MinBuy.setIndicator("MACD");
+		UK_LSE_5MinBuy.setIndicator("LIVE");
 		UK_LSE_5MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_5MinBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_5MinBuy.setLastBuyPrice(buy_price);
