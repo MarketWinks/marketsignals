@@ -209,7 +209,7 @@ public class SellMACDFinder {
 		monthlysells.setMonth(new java.util.Date().getMonth());
 		monthlysells.setYear(new java.util.Date().getYear());
 		monthlysells.setCompany(company);
-		monthlysells.setIndicator("MACD");
+		monthlysells.setIndicator("LIVE");
 		monthlysells.setConfidence_level(confidence_level);
 		monthlysells.setLastSellEvent(sell_opportunity);
 		monthlysells.setLastSellPrice(0.0);
@@ -326,7 +326,7 @@ public class SellMACDFinder {
 		weeklysells.setMonth(new java.util.Date().getMonth());
 		weeklysells.setYear(new java.util.Date().getYear());
 		weeklysells.setCompany(company);
-		weeklysells.setIndicator("MACD");
+		weeklysells.setIndicator("LIVE");
 		weeklysells.setConfidence_level(confidence_level);
 		weeklysells.setLastSellEvent(sell_opportunity);
 		weeklysells.setLastSellPrice(0.0);
@@ -443,7 +443,7 @@ public class SellMACDFinder {
 		dailysells.setMonth(new java.util.Date().getMonth());
 		dailysells.setYear(new java.util.Date().getYear());
 		dailysells.setCompany(company);
-		dailysells.setIndicator("MACD");
+		dailysells.setIndicator("LIVE");
 		dailysells.setConfidence_level(confidence_level);
 		dailysells.setLastSellEvent(sell_opportunity);
 		dailysells.setLastSellPrice(0.0);
@@ -559,7 +559,7 @@ public class SellMACDFinder {
 		hourlySell.setMonth(new java.util.Date().getMonth());
 		hourlySell.setYear(new java.util.Date().getYear());
 		hourlySell.setCompany(company);
-		hourlySell.setIndicator("MACD");
+		hourlySell.setIndicator("LIVE");
 		hourlySell.setConfidence_level(confidence_level);
 		hourlySell.setLastSellEvent(sell_opportunity);
 		hourlySell.setLastSellPrice(0.0);
@@ -676,7 +676,7 @@ public class SellMACDFinder {
 		__30MinSell.setMonth(new java.util.Date().getMonth());
 		__30MinSell.setYear(new java.util.Date().getYear());
 		__30MinSell.setCompany(company);
-		__30MinSell.setIndicator("MACD");
+		__30MinSell.setIndicator("LIVE");
 		__30MinSell.setConfidence_level(confidence_level);
 		__30MinSell.setLastSellEvent(sell_opportunity);
 		__30MinSell.setLastSellPrice(0.0);
@@ -793,7 +793,7 @@ public class SellMACDFinder {
 		__15MinSell.setMonth(new java.util.Date().getMonth());
 		__15MinSell.setYear(new java.util.Date().getYear());
 		__15MinSell.setCompany(company);
-		__15MinSell.setIndicator("MACD");
+		__15MinSell.setIndicator("LIVE");
 		__15MinSell.setConfidence_level(confidence_level);
 		__15MinSell.setLastSellEvent(sell_opportunity);
 		__15MinSell.setLastSellPrice(0.0);
@@ -910,7 +910,7 @@ public class SellMACDFinder {
 		__5MinSell.setMonth(new java.util.Date().getMonth());
 		__5MinSell.setYear(new java.util.Date().getYear());
 		__5MinSell.setCompany(company);
-		__5MinSell.setIndicator("MACD");
+		__5MinSell.setIndicator("LIVE");
 		__5MinSell.setConfidence_level(confidence_level);
 		__5MinSell.setLastSellEvent(sell_opportunity);
 		__5MinSell.setLastSellPrice(0.0);
@@ -1144,7 +1144,7 @@ public class SellMACDFinder {
 		UK_LSE_5MinSell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_5MinSell.setYear(new java.util.Date().getYear());
 		UK_LSE_5MinSell.setCompany(company);
-		UK_LSE_5MinSell.setIndicator("MACD");
+		UK_LSE_5MinSell.setIndicator("LIVE");
 		UK_LSE_5MinSell.setConfidence_level(confidence_level);
 		UK_LSE_5MinSell.setLastSellEvent(sell_opportunity);
 		UK_LSE_5MinSell.setLastSellPrice(0.0);
@@ -1378,7 +1378,7 @@ public class SellMACDFinder {
 		UK_LSE_15MinSell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_15MinSell.setYear(new java.util.Date().getYear());
 		UK_LSE_15MinSell.setCompany(company);
-		UK_LSE_15MinSell.setIndicator("MACD");
+		UK_LSE_15MinSell.setIndicator("LIVE");
 		UK_LSE_15MinSell.setConfidence_level(confidence_level);
 		UK_LSE_15MinSell.setLastSellEvent(sell_opportunity);
 		UK_LSE_15MinSell.setLastSellPrice(0.0);
@@ -1612,7 +1612,7 @@ public class SellMACDFinder {
 		UK_LSE_30MinSell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_30MinSell.setYear(new java.util.Date().getYear());
 		UK_LSE_30MinSell.setCompany(company);
-		UK_LSE_30MinSell.setIndicator("MACD");
+		UK_LSE_30MinSell.setIndicator("LIVE");
 		UK_LSE_30MinSell.setConfidence_level(confidence_level);
 		UK_LSE_30MinSell.setLastSellEvent(sell_opportunity);
 		UK_LSE_30MinSell.setLastSellPrice(0.0);
@@ -1846,7 +1846,7 @@ public class SellMACDFinder {
 		UK_LSE_HourlySell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_HourlySell.setYear(new java.util.Date().getYear());
 		UK_LSE_HourlySell.setCompany(company);
-		UK_LSE_HourlySell.setIndicator("MACD");
+		UK_LSE_HourlySell.setIndicator("LIVE");
 		UK_LSE_HourlySell.setConfidence_level(confidence_level);
 		UK_LSE_HourlySell.setLastSellEvent(sell_opportunity);
 		UK_LSE_HourlySell.setLastSellPrice(0.0);
@@ -2080,7 +2080,7 @@ public class SellMACDFinder {
 		UK_LSE_DailySell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_DailySell.setYear(new java.util.Date().getYear());
 		UK_LSE_DailySell.setCompany(company);
-		UK_LSE_DailySell.setIndicator("MACD");
+		UK_LSE_DailySell.setIndicator("LIVE");
 		UK_LSE_DailySell.setConfidence_level(confidence_level);
 		UK_LSE_DailySell.setLastSellEvent(sell_opportunity);
 		UK_LSE_DailySell.setLastSellPrice(0.0);
@@ -2314,7 +2314,7 @@ public class SellMACDFinder {
 		UK_LSE_WeeklySell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_WeeklySell.setYear(new java.util.Date().getYear());
 		UK_LSE_WeeklySell.setCompany(company);
-		UK_LSE_WeeklySell.setIndicator("MACD");
+		UK_LSE_WeeklySell.setIndicator("LIVE");
 		UK_LSE_WeeklySell.setConfidence_level(confidence_level);
 		UK_LSE_WeeklySell.setLastSellEvent(sell_opportunity);
 		UK_LSE_WeeklySell.setLastSellPrice(0.0);
@@ -2548,7 +2548,7 @@ public class SellMACDFinder {
 		UK_LSE_MonthlySell.setMonth(new java.util.Date().getMonth());
 		UK_LSE_MonthlySell.setYear(new java.util.Date().getYear());
 		UK_LSE_MonthlySell.setCompany(company);
-		UK_LSE_MonthlySell.setIndicator("MACD");
+		UK_LSE_MonthlySell.setIndicator("LIVE");
 		UK_LSE_MonthlySell.setConfidence_level(confidence_level);
 		UK_LSE_MonthlySell.setLastSellEvent(sell_opportunity);
 		UK_LSE_MonthlySell.setLastSellPrice(0.0);

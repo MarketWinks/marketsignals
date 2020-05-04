@@ -215,7 +215,7 @@ public class BuyMACDFinder {
 		monthlybuys.setMonth(new java.util.Date().getMonth());
 		monthlybuys.setYear(new java.util.Date().getYear());
 		monthlybuys.setCompany(company);
-		monthlybuys.setIndicator("MACD");
+		monthlybuys.setIndicator("LIVE");
 		monthlybuys.setConfidence_level(confidence_level);
 		monthlybuys.setLastBuyEvent(buy_opportunity);
 		monthlybuys.setLastBuyPrice(0.0);
@@ -332,7 +332,7 @@ public class BuyMACDFinder {
 		weeklybuys.setMonth(new java.util.Date().getMonth());
 		weeklybuys.setYear(new java.util.Date().getYear());
 		weeklybuys.setCompany(company);
-		weeklybuys.setIndicator("MACD");
+		weeklybuys.setIndicator("LIVE");
 		weeklybuys.setConfidence_level(confidence_level);
 		weeklybuys.setLastBuyEvent(buy_opportunity);
 		weeklybuys.setLastBuyPrice(0.0);
@@ -449,7 +449,7 @@ public class BuyMACDFinder {
 		dailybuys.setMonth(new java.util.Date().getMonth());
 		dailybuys.setYear(new java.util.Date().getYear());
 		dailybuys.setCompany(company);
-		dailybuys.setIndicator("MACD");
+		dailybuys.setIndicator("LIVE");
 		dailybuys.setConfidence_level(confidence_level);
 		dailybuys.setLastBuyEvent(buy_opportunity);
 		dailybuys.setLastBuyPrice(0.0);
@@ -565,7 +565,7 @@ public class BuyMACDFinder {
 		hourlyBuy.setMonth(new java.util.Date().getMonth());
 		hourlyBuy.setYear(new java.util.Date().getYear());
 		hourlyBuy.setCompany(company);
-		hourlyBuy.setIndicator("MACD");
+		hourlyBuy.setIndicator("LIVE");
 		hourlyBuy.setConfidence_level(confidence_level);
 		hourlyBuy.setLastBuyEvent(buy_opportunity);
 		hourlyBuy.setLastBuyPrice(0.0);
@@ -682,7 +682,7 @@ public class BuyMACDFinder {
 		__30MinBuy.setMonth(new java.util.Date().getMonth());
 		__30MinBuy.setYear(new java.util.Date().getYear());
 		__30MinBuy.setCompany(company);
-		__30MinBuy.setIndicator("MACD");
+		__30MinBuy.setIndicator("LIVE");
 		__30MinBuy.setConfidence_level(confidence_level);
 		__30MinBuy.setLastBuyEvent(buy_opportunity);
 		__30MinBuy.setLastBuyPrice(0.0);
@@ -799,7 +799,7 @@ public class BuyMACDFinder {
 		__15MinBuy.setMonth(new java.util.Date().getMonth());
 		__15MinBuy.setYear(new java.util.Date().getYear());
 		__15MinBuy.setCompany(company);
-		__15MinBuy.setIndicator("MACD");
+		__15MinBuy.setIndicator("LIVE");
 		__15MinBuy.setConfidence_level(confidence_level);
 		__15MinBuy.setLastBuyEvent(buy_opportunity);
 		__15MinBuy.setLastBuyPrice(0.0);
@@ -916,7 +916,7 @@ public class BuyMACDFinder {
 		__5MinBuy.setMonth(new java.util.Date().getMonth());
 		__5MinBuy.setYear(new java.util.Date().getYear());
 		__5MinBuy.setCompany(company);
-		__5MinBuy.setIndicator("MACD");
+		__5MinBuy.setIndicator("LIVE");
 		__5MinBuy.setConfidence_level(confidence_level);
 		__5MinBuy.setLastBuyEvent(buy_opportunity);
 		__5MinBuy.setLastBuyPrice(0.0);
@@ -1150,7 +1150,7 @@ public class BuyMACDFinder {
 		UK_LSE_15MinBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_15MinBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_15MinBuy.setCompany(company);
-		UK_LSE_15MinBuy.setIndicator("MACD");
+		UK_LSE_15MinBuy.setIndicator("LIVE");
 		UK_LSE_15MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_15MinBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_15MinBuy.setLastBuyPrice(0.0);
@@ -1384,7 +1384,7 @@ public class BuyMACDFinder {
 		UK_LSE_30MinBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_30MinBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_30MinBuy.setCompany(company);
-		UK_LSE_30MinBuy.setIndicator("MACD");
+		UK_LSE_30MinBuy.setIndicator("LIVE");
 		UK_LSE_30MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_30MinBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_30MinBuy.setLastBuyPrice(0.0);
@@ -1618,7 +1618,7 @@ public class BuyMACDFinder {
 		UK_LSE_HourlyBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_HourlyBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_HourlyBuy.setCompany(company);
-		UK_LSE_HourlyBuy.setIndicator("MACD");
+		UK_LSE_HourlyBuy.setIndicator("LIVE");
 		UK_LSE_HourlyBuy.setConfidence_level(confidence_level);
 		UK_LSE_HourlyBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_HourlyBuy.setLastBuyPrice(0.0);
@@ -1805,7 +1805,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
-					buy_price = Float.parseFloat(criterialoopnextObject.get("Price").toString());
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -2149,7 +2149,7 @@ public class BuyMACDFinder {
 		UK_LSE_WeeklyBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_WeeklyBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_WeeklyBuy.setCompany(company);
-		UK_LSE_WeeklyBuy.setIndicator("MACD");
+		UK_LSE_WeeklyBuy.setIndicator("LIVE");
 		UK_LSE_WeeklyBuy.setConfidence_level(confidence_level);
 		UK_LSE_WeeklyBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_WeeklyBuy.setLastBuyPrice(0.0);
@@ -2383,7 +2383,7 @@ public class BuyMACDFinder {
 		UK_LSE_MonthlyBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_MonthlyBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_MonthlyBuy.setCompany(company);
-		UK_LSE_MonthlyBuy.setIndicator("MACD");
+		UK_LSE_MonthlyBuy.setIndicator("LIVE");
 		UK_LSE_MonthlyBuy.setConfidence_level(confidence_level);
 		UK_LSE_MonthlyBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_MonthlyBuy.setLastBuyPrice(0.0);
@@ -2617,7 +2617,7 @@ public class BuyMACDFinder {
 		UK_LSE_DailyBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_DailyBuy.setYear(new java.util.Date().getYear());
 		UK_LSE_DailyBuy.setCompany(company);
-		UK_LSE_DailyBuy.setIndicator("MACD");
+		UK_LSE_DailyBuy.setIndicator("LIVE");
 		UK_LSE_DailyBuy.setConfidence_level(confidence_level);
 		UK_LSE_DailyBuy.setLastBuyEvent(buy_opportunity);
 		UK_LSE_DailyBuy.setLastBuyPrice(0.0);
@@ -2851,7 +2851,7 @@ public class BuyMACDFinder {
 		// monthlybuys.setMonth(new java.util.Date().getMonth());
 		// monthlybuys.setYear(new java.util.Date().getYear());
 		// monthlybuys.setCompany(company);
-		// monthlybuys.setIndicator("MACD");
+		// monthlybuys.setIndicator("LIVE");
 		// monthlybuys.setConfidence_level(confidence_level);
 		// monthlybuys.setLastBuyEvent(buy_opportunity);
 		// monthlybuys.setLastBuyPrice(0.0);
