@@ -27,6 +27,10 @@ import org.patriques.output.AlphaVantageException;
 import org.patriques.output.technicalindicators.MACD;
 import org.patriques.output.technicalindicators.data.MACDData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.marketwinks.marketsignals.model.uk_lse_15minbuys;
 import com.marketwinks.marketsignals.model.uk_lse_30minbuys;
 import com.marketwinks.marketsignals.model.uk_lse_5minbuys;
+import com.marketwinks.marketsignals.model.uk_lse_5minsells;
 import com.marketwinks.marketsignals.model.uk_lse_dailybuys;
 import com.marketwinks.marketsignals.model.uk_lse_hourlybuys;
 import com.marketwinks.marketsignals.model.uk_lse_monthlybuys;
@@ -60,6 +65,8 @@ import com.marketwinks.marketsignals.repository.US_DailyBuyRepository;
 import com.marketwinks.marketsignals.repository.US_HourlyBuyRepository;
 import com.marketwinks.marketsignals.repository.US_MonthlyBuyRepository;
 import com.marketwinks.marketsignals.repository.US_WeeklyBuyRepository;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
 @RestController
 @RequestMapping("/baseURL")
@@ -1645,6 +1652,10 @@ public class BuyMACDFinder {
 		String buy_opportunity = null;
 		String sell_opportunity = null;
 		String last_opportunity = null;
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
 
 		// TODO experimenatal: to reduce repeated buy signals
 		int buy_counter = 0;
@@ -1794,6 +1805,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopnextObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -1822,6 +1834,13 @@ public class BuyMACDFinder {
 					last_opportunity = sell_opportunity;
 				}
 
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 			}
 
 		} catch (Exception e) {
@@ -1841,6 +1860,8 @@ public class BuyMACDFinder {
 
 		System.out.println("Confidence level:" + confidence_level);
 
+		// ALL CALCS OVER - NOW ACTIONS
+
 		uk_lse_5minbuys UK_LSE_5MinBuy = new uk_lse_5minbuys();
 		UK_LSE_5MinBuy.setMonth(new java.util.Date().getMonth());
 		UK_LSE_5MinBuy.setYear(new java.util.Date().getYear());
@@ -1848,13 +1869,62 @@ public class BuyMACDFinder {
 		UK_LSE_5MinBuy.setIndicator("MACD");
 		UK_LSE_5MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_5MinBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_5MinBuy.setLastBuyPrice(0.0);
+		UK_LSE_5MinBuy.setLastBuyPrice(buy_price);
 		UK_LSE_5MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_5MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_5MinBuy.setLastEventPrice(0.0);
+		UK_LSE_5MinBuy.setLasttradedprice(buy_price);
 
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_5minbuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_5minbuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_5minbuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_5minsells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_5minbuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_5minsells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0) {
+			uk_lse_5minbuys saveresult = UK_LSE__5MinBuyRepository.insert(UK_LSE_5MinBuy);
+		}
 		// TO DO price need to be populated
-		uk_lse_5minbuys saveresult = UK_LSE__5MinBuyRepository.insert(UK_LSE_5MinBuy);
 
 		execution_result = true;
 		return execution_result;
@@ -2796,4 +2866,35 @@ public class BuyMACDFinder {
 		return execution_result;
 
 	}
+
+	@RequestMapping(value = "/findMarketSignals/MACD/changeMACDtoLIVE", method = RequestMethod.GET)
+	public boolean changeIndicatorMACDtoLIVE() {
+
+		boolean execution_result = false;
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("MACD"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("indicator", "LIVE");
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_5minbuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_5minsells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		execution_result = true;
+		return execution_result;
+
+	}
+
 }

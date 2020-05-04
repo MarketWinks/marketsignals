@@ -25,6 +25,18 @@ public class uk_lse_5minbuys {
 	private boolean isLastEventBuy;
 	private double lastEventPrice;
 
+	private double lasttradedprice;
+
+	private String expirytime;
+	private double expiryprice;
+
+	private double targetlowrisk;
+	private double targethighrisk;
+	private double stoplosslowrisk;
+	private double stoplosshighrisk;
+
+	private int likes;
+
 	// ObjectId needs to be converted to string
 	public String get_id() {
 		return _id.toHexString();
@@ -112,6 +124,126 @@ public class uk_lse_5minbuys {
 
 	public void setLastEventPrice(double lastEventPrice) {
 		this.lastEventPrice = lastEventPrice;
+	}
+
+	/**
+	 * @return the lasttradedprice
+	 */
+	public double getLasttradedprice() {
+		return lasttradedprice;
+	}
+
+	/**
+	 * @param lasttradedprice
+	 *            the lasttradedprice to set
+	 */
+	public void setLasttradedprice(double lasttradedprice) {
+		this.lasttradedprice = lasttradedprice;
+	}
+
+	/**
+	 * @return the expirytime
+	 */
+	public String getExpirytime() {
+		return expirytime;
+	}
+
+	/**
+	 * @param expirytime
+	 *            the expirytime to set
+	 */
+	public void setExpirytime(String expirytime) {
+		this.expirytime = expirytime;
+	}
+
+	/**
+	 * @return the expiryprice
+	 */
+	public double getExpiryprice() {
+		return expiryprice;
+	}
+
+	/**
+	 * @param expiryprice
+	 *            the expiryprice to set
+	 */
+	public void setExpiryprice(double expiryprice) {
+		this.expiryprice = expiryprice;
+	}
+
+	/**
+	 * @return the targetlowrisk
+	 */
+	public double getTargetlowrisk() {
+		return targetlowrisk;
+	}
+
+	/**
+	 * @param targetlowrisk
+	 *            the targetlowrisk to set
+	 */
+	public void setTargetlowrisk(double targetlowrisk) {
+		this.targetlowrisk = targetlowrisk;
+	}
+
+	/**
+	 * @return the targethighrisk
+	 */
+	public double getTargethighrisk() {
+		return targethighrisk;
+	}
+
+	/**
+	 * @param targethighrisk
+	 *            the targethighrisk to set
+	 */
+	public void setTargethighrisk(double targethighrisk) {
+		this.targethighrisk = targethighrisk;
+	}
+
+	/**
+	 * @return the stoplosslowrisk
+	 */
+	public double getStoplosslowrisk() {
+		return stoplosslowrisk;
+	}
+
+	/**
+	 * @param stoplosslowrisk
+	 *            the stoplosslowrisk to set
+	 */
+	public void setStoplosslowrisk(double stoplosslowrisk) {
+		this.stoplosslowrisk = stoplosslowrisk;
+	}
+
+	/**
+	 * @return the stoplosshighrisk
+	 */
+	public double getStoplosshighrisk() {
+		return stoplosshighrisk;
+	}
+
+	/**
+	 * @param stoplosshighrisk
+	 *            the stoplosshighrisk to set
+	 */
+	public void setStoplosshighrisk(double stoplosshighrisk) {
+		this.stoplosshighrisk = stoplosshighrisk;
+	}
+
+	/**
+	 * @return the likes
+	 */
+	public int getLikes() {
+		return likes;
+	}
+
+	/**
+	 * @param likes
+	 *            the likes to set
+	 */
+	public void setLikes(int likes) {
+		this.likes = likes;
 	}
 
 }
