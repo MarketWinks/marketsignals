@@ -37,13 +37,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.marketwinks.marketsignals.model.uk_lse_15minbuys;
+import com.marketwinks.marketsignals.model.uk_lse_15minsells;
 import com.marketwinks.marketsignals.model.uk_lse_30minbuys;
+import com.marketwinks.marketsignals.model.uk_lse_30minsells;
 import com.marketwinks.marketsignals.model.uk_lse_5minbuys;
 import com.marketwinks.marketsignals.model.uk_lse_5minsells;
 import com.marketwinks.marketsignals.model.uk_lse_dailybuys;
+import com.marketwinks.marketsignals.model.uk_lse_dailysells;
 import com.marketwinks.marketsignals.model.uk_lse_hourlybuys;
+import com.marketwinks.marketsignals.model.uk_lse_hourlysells;
 import com.marketwinks.marketsignals.model.uk_lse_monthlybuys;
+import com.marketwinks.marketsignals.model.uk_lse_monthlysells;
 import com.marketwinks.marketsignals.model.uk_lse_weeklybuys;
+import com.marketwinks.marketsignals.model.uk_lse_weeklysells;
 import com.marketwinks.marketsignals.model.us_15minbuys;
 import com.marketwinks.marketsignals.model.us_30minbuys;
 import com.marketwinks.marketsignals.model.us_5minbuys;
@@ -958,7 +964,13 @@ public class BuyMACDFinder {
 		double confidence_level = 0.0;
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
+		
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
 
+		
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_15mins/macd/read/" + company;
 
 		HttpGet request = null;
@@ -1126,6 +1138,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -1153,13 +1173,66 @@ public class BuyMACDFinder {
 		UK_LSE_15MinBuy.setIndicator("LIVE");
 		UK_LSE_15MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_15MinBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_15MinBuy.setLastBuyPrice(0.0);
+		UK_LSE_15MinBuy.setLastBuyPrice(buy_price);
 		UK_LSE_15MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_15MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_15MinBuy.setLastEventPrice(0.0);
+		UK_LSE_15MinBuy.setLasttradedprice(buy_price);
 
+		
+
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_15minbuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_15minbuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_15minbuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_15minsells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_15minbuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_15minsells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_15MinBuy.isLastEventBuy() == true) {
+			uk_lse_15minbuys saveresult = UK_LSE__15MinBuyRepository.insert(UK_LSE_15MinBuy);
+
+		}
 		// TO DO price need to be populated
-		uk_lse_15minbuys saveresult = UK_LSE__15MinBuyRepository.insert(UK_LSE_15MinBuy);
+
 
 		execution_result = true;
 		return execution_result;
@@ -1193,6 +1266,12 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
+
+		
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_30mins/macd/read/" + company;
 
 		HttpGet request = null;
@@ -1360,6 +1439,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -1387,16 +1474,74 @@ public class BuyMACDFinder {
 		UK_LSE_30MinBuy.setIndicator("LIVE");
 		UK_LSE_30MinBuy.setConfidence_level(confidence_level);
 		UK_LSE_30MinBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_30MinBuy.setLastBuyPrice(0.0);
+		UK_LSE_30MinBuy.setLastBuyPrice(buy_price);
 		UK_LSE_30MinBuy.setLastEvent(last_opportunity);
 		UK_LSE_30MinBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_30MinBuy.setLastEventPrice(0.0);
+		UK_LSE_30MinBuy.setLasttradedprice(buy_price);
+		
+		
+		
+		
 
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_30minbuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_30minbuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_30minbuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_30minsells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_30minbuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_30minsells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_30MinBuy.isLastEventBuy() == true) {
+			uk_lse_30minbuys saveresult = UK_LSE__30MinBuyRepository.insert(UK_LSE_30MinBuy);
+
+
+		}
 		// TO DO price need to be populated
-		uk_lse_30minbuys saveresult = UK_LSE__30MinBuyRepository.insert(UK_LSE_30MinBuy);
+
 
 		execution_result = true;
 		return execution_result;
+
+		
 
 	}
 
@@ -1426,6 +1571,12 @@ public class BuyMACDFinder {
 		double confidence_level = 0.0;
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
+		
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
+
 
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_hourly/macd/read/" + company;
 
@@ -1549,7 +1700,10 @@ public class BuyMACDFinder {
 
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
-
+				
+				System.out.println(key);
+				System.out.println(Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())));
+				
 				if (counter > 5 && counter - buy_counter >= 2 && i < size - 1
 						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
 						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
@@ -1594,6 +1748,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -1621,16 +1783,76 @@ public class BuyMACDFinder {
 		UK_LSE_HourlyBuy.setIndicator("LIVE");
 		UK_LSE_HourlyBuy.setConfidence_level(confidence_level);
 		UK_LSE_HourlyBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_HourlyBuy.setLastBuyPrice(0.0);
+		UK_LSE_HourlyBuy.setLastBuyPrice(buy_price);
 		UK_LSE_HourlyBuy.setLastEvent(last_opportunity);
 		UK_LSE_HourlyBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_HourlyBuy.setLastEventPrice(0.0);
+		UK_LSE_HourlyBuy.setLasttradedprice(buy_price);
+		
+		
+		
+		
 
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_hourlybuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_hourlybuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_hourlybuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_hourlysells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_hourlybuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_hourlysells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_HourlyBuy.isLastEventBuy() == true) {
+			
+			uk_lse_hourlybuys saveresult = UK_LSE__HourlyBuyRepository.insert(UK_LSE_HourlyBuy);
+
+
+
+		}
 		// TO DO price need to be populated
-		uk_lse_hourlybuys saveresult = UK_LSE__HourlyBuyRepository.insert(UK_LSE_HourlyBuy);
+
 
 		execution_result = true;
 		return execution_result;
+
+		
 
 	}
 
@@ -1958,6 +2180,12 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
+
+		
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_weekly/macd/read/" + company;
 
 		HttpGet request = null;
@@ -2125,6 +2353,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -2152,16 +2388,72 @@ public class BuyMACDFinder {
 		UK_LSE_WeeklyBuy.setIndicator("LIVE");
 		UK_LSE_WeeklyBuy.setConfidence_level(confidence_level);
 		UK_LSE_WeeklyBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_WeeklyBuy.setLastBuyPrice(0.0);
+		UK_LSE_WeeklyBuy.setLastBuyPrice(buy_price);
 		UK_LSE_WeeklyBuy.setLastEvent(last_opportunity);
 		UK_LSE_WeeklyBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_WeeklyBuy.setLastEventPrice(0.0);
+		UK_LSE_WeeklyBuy.setLasttradedprice(buy_price);
 
+		
+
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_weeklybuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_weeklybuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_weeklybuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_weeklysells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_weeklybuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_weeklysells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_WeeklyBuy.isLastEventBuy() == true) {
+			uk_lse_weeklybuys saveresult = UK_LSE__WeeklyBuyRepository.insert(UK_LSE_WeeklyBuy);
+
+
+		}
 		// TO DO price need to be populated
-		uk_lse_weeklybuys saveresult = UK_LSE__WeeklyBuyRepository.insert(UK_LSE_WeeklyBuy);
+
 
 		execution_result = true;
 		return execution_result;
+
+
 
 	}
 
@@ -2191,6 +2483,12 @@ public class BuyMACDFinder {
 		double confidence_level = 0.0;
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
+		
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
+
 
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_monthly/macd/read/" + company;
 
@@ -2359,6 +2657,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -2386,16 +2692,73 @@ public class BuyMACDFinder {
 		UK_LSE_MonthlyBuy.setIndicator("LIVE");
 		UK_LSE_MonthlyBuy.setConfidence_level(confidence_level);
 		UK_LSE_MonthlyBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_MonthlyBuy.setLastBuyPrice(0.0);
+		UK_LSE_MonthlyBuy.setLastBuyPrice(buy_price);
 		UK_LSE_MonthlyBuy.setLastEvent(last_opportunity);
 		UK_LSE_MonthlyBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_MonthlyBuy.setLastEventPrice(0.0);
+		UK_LSE_MonthlyBuy.setLasttradedprice(buy_price);
 
+
+
+		
+
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_monthlybuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_monthlybuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_monthlybuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_monthlysells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_monthlybuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_monthlysells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_MonthlyBuy.isLastEventBuy() == true) {
+			uk_lse_monthlybuys saveresult = UK_LSE__MonthlyBuyRepository.insert(UK_LSE_MonthlyBuy);
+
+		}
 		// TO DO price need to be populated
-		uk_lse_monthlybuys saveresult = UK_LSE__MonthlyBuyRepository.insert(UK_LSE_MonthlyBuy);
+
 
 		execution_result = true;
 		return execution_result;
+
+
 
 	}
 
@@ -2426,6 +2789,12 @@ public class BuyMACDFinder {
 		boolean isLastEventBuy = false;
 		List<String> event = new ArrayList<>();
 
+		double buy_price = 0.00;
+		double current_hist = 0.00;
+		double current_price = 0.00;
+		String current_time = null;
+
+		
 		String feedURLFull = "https://markettechnicals-api.herokuapp.com/uk_lse_daily/macd/read/" + company;
 
 		HttpGet request = null;
@@ -2593,6 +2962,14 @@ public class BuyMACDFinder {
 					isLastEventBuy = false;
 					last_opportunity = sell_opportunity;
 				}
+				
+				if (i == 0) {
+					current_hist = Float.parseFloat(criterialoopObject.get("MACD_Hist").toString());
+					current_price = Float.parseFloat(criterialoopObject.get("Price").toString());
+					current_time = key;
+
+				}
+
 
 			}
 
@@ -2620,16 +2997,73 @@ public class BuyMACDFinder {
 		UK_LSE_DailyBuy.setIndicator("LIVE");
 		UK_LSE_DailyBuy.setConfidence_level(confidence_level);
 		UK_LSE_DailyBuy.setLastBuyEvent(buy_opportunity);
-		UK_LSE_DailyBuy.setLastBuyPrice(0.0);
+		UK_LSE_DailyBuy.setLastBuyPrice(buy_price);
 		UK_LSE_DailyBuy.setLastEvent(last_opportunity);
 		UK_LSE_DailyBuy.setLastEventBuy(isLastEventBuy);
 		UK_LSE_DailyBuy.setLastEventPrice(0.0);
+		UK_LSE_DailyBuy.setLasttradedprice(buy_price);
 
+
+		
+
+		// this block is to avoid duplicate signals to get inserted
+		List<uk_lse_dailybuys> queryresult_querytostopduplicate = new ArrayList<>();
+
+		MongoClient mongoClient = MongoClients.create(
+				"mongodb+srv://marketwinks:L9sS6oOAk1sHL0yi@aws-eu-west1-cluster-tszuq.mongodb.net/marketwinksdbprod?retryWrites=true");
+		MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, "marketwinksdbprod");
+
+		try {
+
+			Query querytostopduplicate = new Query();
+			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
+			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
+			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_dailybuys.class);
+
+			Query querytomarkexpired = new Query();
+			querytomarkexpired.addCriteria(Criteria.where("company").is(company));
+			querytomarkexpired.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetomarkexpired = new Update();
+			updatetomarkexpired.set("indicator", "EXPIRED");
+			updatetomarkexpired.set("expirytime", current_time);
+			updatetomarkexpired.set("expiryprice", current_price);
+
+			if (current_hist < 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_dailybuys.class);
+			} else if (current_hist > 0) {
+				mongoTemplate.updateMulti(querytomarkexpired, updatetomarkexpired, uk_lse_dailysells.class);
+
+			}
+
+			// FOR LTP UPDATE
+			Query querytoupdateLTP = new Query();
+			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
+			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			Update updatetoupdateLTP = new Update();
+			updatetoupdateLTP.set("lasttradedprice", current_price);
+
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_dailybuys.class);
+			mongoTemplate.updateMulti(querytoupdateLTP, updatetoupdateLTP, uk_lse_dailysells.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			mongoClient.close();
+		}
+
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_DailyBuy.isLastEventBuy() == true) {
+			uk_lse_dailybuys saveresult = UK_LSE__DailyBuyRepository.insert(UK_LSE_DailyBuy);
+
+
+		}
 		// TO DO price need to be populated
-		uk_lse_dailybuys saveresult = UK_LSE__DailyBuyRepository.insert(UK_LSE_DailyBuy);
+
 
 		execution_result = true;
 		return execution_result;
+
+
 
 	}
 

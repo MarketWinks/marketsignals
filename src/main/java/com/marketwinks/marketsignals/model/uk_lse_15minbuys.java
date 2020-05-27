@@ -25,6 +25,8 @@ public class uk_lse_15minbuys {
 	private boolean isLastEventBuy;
 	private double lastEventPrice;
 
+	private double lasttradedprice;
+
 	// ObjectId needs to be converted to string
 	public String get_id() {
 		return _id.toHexString();
@@ -112,6 +114,21 @@ public class uk_lse_15minbuys {
 
 	public void setLastEventPrice(double lastEventPrice) {
 		this.lastEventPrice = lastEventPrice;
+	}
+
+	/**
+	 * @return the lasttradedprice
+	 */
+	public double getLasttradedprice() {
+		return lasttradedprice;
+	}
+
+	/**
+	 * @param lasttradedprice
+	 *            the lasttradedprice to set
+	 */
+	public void setLasttradedprice(double lasttradedprice) {
+		this.lasttradedprice = lasttradedprice;
 	}
 
 }
