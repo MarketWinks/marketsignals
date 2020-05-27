@@ -1921,7 +1921,7 @@ public class BuyMACDFinder {
 			mongoClient.close();
 		}
 
-		if (queryresult_querytostopduplicate.size() == 0) {
+		if (queryresult_querytostopduplicate.size() == 0 && UK_LSE_5MinBuy.isLastEventBuy() == true) {
 			uk_lse_5minbuys saveresult = UK_LSE__5MinBuyRepository.insert(UK_LSE_5MinBuy);
 		}
 		// TO DO price need to be populated
