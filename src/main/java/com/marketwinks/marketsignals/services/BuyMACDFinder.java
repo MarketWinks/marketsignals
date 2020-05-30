@@ -1111,6 +1111,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -1192,7 +1193,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_15minbuys.class);
 
@@ -1214,7 +1215,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -1412,6 +1413,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -1495,7 +1497,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_30minbuys.class);
 
@@ -1517,7 +1519,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -1721,6 +1723,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -1804,7 +1807,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_hourlybuys.class);
 
@@ -1826,7 +1829,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2108,7 +2111,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_5minbuys.class);
 
@@ -2130,7 +2133,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2326,6 +2329,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -2407,7 +2411,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_weeklybuys.class);
 
@@ -2429,7 +2433,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2630,6 +2634,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -2713,7 +2718,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_monthlybuys.class);
 
@@ -2735,7 +2740,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2935,6 +2940,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+					buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;
@@ -3017,7 +3023,7 @@ public class BuyMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastBuyEvent").is(buy_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_dailybuys.class);
 
@@ -3039,7 +3045,7 @@ public class BuyMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -3234,6 +3240,7 @@ public class BuyMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					buy_opportunity = key;
+				//	buy_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("BUY OPPORTUNITY happened on:" + buy_opportunity);
 					event.add("BUY");
 					isLastEventBuy = true;

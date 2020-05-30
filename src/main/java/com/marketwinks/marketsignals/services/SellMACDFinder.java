@@ -1096,10 +1096,10 @@ public class SellMACDFinder {
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
 				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
 						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
 								* 1.5) {
 
@@ -1112,6 +1112,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -1119,12 +1120,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
+				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
 								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
-					//
+					
+
+					
 					// String str = key;
 					//
 					// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
@@ -1195,7 +1198,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_5minsells.class);
 
@@ -1218,7 +1221,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -1401,14 +1404,14 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
-				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
-						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
-								* 1.5) {
 
+					if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+							&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
+							&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+									* 1.5) {
 					sell_counter = counter;
 
 					// String str = key;
@@ -1418,6 +1421,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -1425,11 +1429,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
+
 					//
 					// String str = key;
 					//
@@ -1498,7 +1505,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_15minsells.class);
 
@@ -1521,7 +1528,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -1705,11 +1712,12 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
+
 				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
 						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
 								* 1.5) {
 
@@ -1722,6 +1730,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -1729,11 +1738,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
+						
 					//
 					// String str = key;
 					//
@@ -1802,7 +1814,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_30minsells.class);
 
@@ -1825,7 +1837,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2007,14 +2019,15 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
+
 				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
 						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
 								* 1.5) {
-
+					
 					sell_counter = counter;
 
 					// String str = key;
@@ -2024,6 +2037,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -2031,11 +2045,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
+						
 					//
 					// String str = key;
 					//
@@ -2104,7 +2121,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_hourlysells.class);
 
@@ -2127,7 +2144,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2308,14 +2325,14 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
-				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
-						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
-								* 1.5) {
 
+					if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+							&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
+							&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+									* 1.5) {
 					sell_counter = counter;
 
 					// String str = key;
@@ -2325,6 +2342,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -2332,11 +2350,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
+						
 					//
 					// String str = key;
 					//
@@ -2403,7 +2424,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_dailysells.class);
 
@@ -2426,7 +2447,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2608,14 +2629,14 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
+
 				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
+						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
 						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
 								* 1.5) {
-
 					sell_counter = counter;
 
 					// String str = key;
@@ -2625,6 +2646,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -2632,11 +2654,13 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
 					//
 					// String str = key;
 					//
@@ -2705,7 +2729,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_weeklysells.class);
 
@@ -2728,7 +2752,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
@@ -2910,14 +2934,14 @@ public class SellMACDFinder {
 				signal_average = (signal_average * (counter - 1)
 						+ Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()))) / counter;
 
-				if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
-						&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0
-						&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
-								* 1.5) {
 
+					if (counter > 5 && counter - sell_counter >= 2 && i < size - 1
+							&& Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0
+							&& Math.abs(Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average
+									* 1.5) {
 					sell_counter = counter;
 
 					// String str = key;
@@ -2927,6 +2951,7 @@ public class SellMACDFinder {
 					// LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 					sell_opportunity = key;
+					sell_price = Float.parseFloat(criterialoopObject.get("Price").toString());
 					System.out.println("SELL OPPORTUNITY happened on:" + sell_opportunity);
 					event.add("SELL");
 					isLastEventSell = true;
@@ -2934,11 +2959,14 @@ public class SellMACDFinder {
 					no_of_sells++;
 				}
 
-				if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) < 0
-						&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) > 0
-						&& Float.parseFloat(criterialoopObject.get("MACD").toString()) > 0 && Math.abs(
-								Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+
+					if (i < size - 1 && Float.parseFloat(criterialoopnextObject.get("MACD_Hist").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Hist").toString()) > 0
+							&& Float.parseFloat(criterialoopObject.get("MACD_Signal").toString()) < 0
+							&& Float.parseFloat(criterialoopObject.get("MACD").toString()) < 0 && Math.abs(
+									Float.parseFloat(criterialoopObject.get("MACD_Signal").toString())) > signal_average) {
+						
+						
 					//
 					// String str = key;
 					//
@@ -3005,7 +3033,7 @@ public class SellMACDFinder {
 
 			Query querytostopduplicate = new Query();
 			querytostopduplicate.addCriteria(Criteria.where("company").is(company));
-			querytostopduplicate.addCriteria(Criteria.where("confidence_level").is(confidence_level));
+			
 			querytostopduplicate.addCriteria(Criteria.where("lastSellEvent").is(sell_opportunity));
 			queryresult_querytostopduplicate = mongoTemplate.find(querytostopduplicate, uk_lse_monthlysells.class);
 
@@ -3028,7 +3056,7 @@ public class SellMACDFinder {
 			// FOR LTP UPDATE
 			Query querytoupdateLTP = new Query();
 			querytoupdateLTP.addCriteria(Criteria.where("company").is(company));
-			querytoupdateLTP.addCriteria(Criteria.where("indicator").is("LIVE"));
+			
 			Update updatetoupdateLTP = new Update();
 			updatetoupdateLTP.set("lasttradedprice", current_price);
 
